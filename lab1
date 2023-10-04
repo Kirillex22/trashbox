@@ -41,16 +41,8 @@ namespace SpaceBattle
 
     class SpaceShip
     {
-        public string name;
-
         public Vector position {get; set;}
 
         public Vector velocity {get;}
-
-        public SpaceShip()
-        {
-
-        }
-
     }
 }
