@@ -1,0 +1,39 @@
+questions_data = open('questions_data.txt', 'r', encoding='utf-8').readlines()
+answers_data = open('answers_data.txt', 'r', encoding='utf-8').readlines()
+right_answers_data = open('right_answers_data.txt', 'r', encoding='utf-8').readlines()
+
+questions = {}
+answers = {}
+right_answers = {}
+
+line_count = sum(1 for line in questions_data)
+
+for i in range(line_count):
+    
+    questions[i] = questions_data[i]
+    answers[i] = answers_data[i].split(';')
+    right_answers[i] = right_answers_data[i]
+
+def show_question(question, answer, right_answer):
+    print(question)
+    print(answer)
+    n = int(input())
+    if n == int(right_answer):
+        return 1
+    else:
+        return 0
+    
+
+while(True):
+    result = 0
+    print('Начать тест')
+    input()
+
+    for i in range(line_count):
+        q = questions.get(i)
+        ans = answers.get(i)
+        r_ans = right_answers.get(i)
+        result += show_question(q, ans, r_ans)
+        
+    print(result)
+    input()
