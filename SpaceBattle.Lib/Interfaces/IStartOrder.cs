@@ -1,5 +1,6 @@
-public interface IOrder
+public interface IMoveStartable
 {
     public IUObject Target {get;}  
+    public string Operation {get;}
     public IDictionary<string, object> InitialValues {get;}
 }

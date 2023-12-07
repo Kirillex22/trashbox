@@ -4,25 +4,25 @@ namespace SpaceBattle.Lib;
 
 public class StartMoveCommand : ICommand
 {
-    private IOrder _order;
+    private IOrder _startable;
 
-    public StartMoveCommand(IOrder order)
+    public StartMoveCommand(IMoveStartable startable)
     {
-       _order = order;
+       _startable = startable;
     }
 
     public void Execute()
     {
-        _order.InitialValues.ToList().ForEach(value => IoC.Resolve<object>(
+        _startable.InitialValues.ToList().ForEach(value => IoC.Resolve<object>(
             "Game.IUObject.SetProperty",
-            _order.Target,
+            _startable.Target,
             value.Key,
             value.Value
         ));
 
-        var cmd = IoC.Resolve<ICommand>("Game.Operations.Movement", _order.Target);
+        var cmd = IoC.Resolve<ICommand>("Game.Commands.Move", _startable.Target);
 
-        IoC.Resolve<ICommand>("IUObject.Property.Set", _order.Target, "Movement", cmd);
+        IoC.Resolve<ICommand>("Game.IUObject.SetProperty", _startable.Target, "Game.Commands.Move", cmd);
         IoC.Resolve<IQueue>("Game.Queue").Push(cmd);
     }  
 }
