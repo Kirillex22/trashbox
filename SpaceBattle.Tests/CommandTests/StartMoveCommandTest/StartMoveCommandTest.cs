@@ -1,14 +1,13 @@
 using Hwdtech;
 using Hwdtech.Ioc;
 using SpaceBattle.Lib;
+using System.Collections;
+using Moq;
 
 namespace SpaceBattle.Tests;
 
 public class StartMoveCommandTest
 {
-    private IQueue queue = new Mock<ICommand>().Object;
-    private Queue realQueue = new Queue<ICommand>();
-
     public StartMoveCommandTest()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();   
@@ -41,32 +40,34 @@ public class StartMoveCommandTest
             }
         ).Execute();
 
-        queue.Setup(q => q.Push(It.IsAny<ICommand>())).Callback(realQueue.Enqueue);
+    }
+
+    [Fact]
+    public void SuccefulExecuting()
+    { 
+        var queue = new Mock<IQueue>();
+        var realQueue = new Queue<SpaceBattle.Lib.ICommand>();
+
+        queue.Setup(q => q.Push(It.IsAny<SpaceBattle.Lib.ICommand>())).Callback(realQueue.Enqueue);
 
         IoC.Resolve<Hwdtech.ICommand>(
             "IoC.Register",
             "Game.Queue",
             (object[] args) =>
             {
-                return queue;
+                return queue.Object;
             }
         ).Execute();
-    }
-
-    [Fact]
-    public void SuccefulExecuting()
-    {        
+        
         var startable = new Mock<IMoveStartable>();
         var target = new Mock<IUObject>();
-        var initialValues = new Dictionary<string, object> {, 
-            {"position", new object()},
-            {"command", "Move"}
-        };
+        var initialValues = new Dictionary<string, object> { {"position", new object()}};
 
         var settedValues = new Dictionary<string, object>();
 
         startable.SetupGet(s => s.InitialValues).Returns(initialValues);
         startable.SetupGet(s => s.Target).Returns(target.Object);
+        startable.SetupGet(s => s.Command).Returns("Move");
 
         target.Setup(
             t => t.SetProperty(
@@ -79,22 +80,35 @@ public class StartMoveCommandTest
 
         smc.Execute();
 
-        Assert.True(settedValues.Contains("position") && settedValues.Contains("Move") && realQueue.TryDequeue());
+        Assert.True(settedValues.ContainsKey("position") && settedValues.ContainsKey("command"));
+        Assert.NotEmpty(realQueue);
     }
 
     [Fact]
     public void InitialValuesSetException()
     {
+        var queue = new Mock<IQueue>();
+        var realQueue = new Queue<SpaceBattle.Lib.ICommand>();
+
+        queue.Setup(q => q.Push(It.IsAny<SpaceBattle.Lib.ICommand>())).Callback(realQueue.Enqueue);
+
+        IoC.Resolve<Hwdtech.ICommand>(
+            "IoC.Register",
+            "Game.Queue",
+            (object[] args) =>
+            {
+                return queue.Object;
+            }
+        ).Execute();
+
         var startable = new Mock<IMoveStartable>();
         var target = new Mock<IUObject>();
-        var initialValues = new Dictionary<string, object> {
-            {"velocity", new object()},
-            {"command", "move"}
-        };
+        var initialValues = new Dictionary<string, object> {{"velocity", new object()}};
         var settedValues = new Dictionary<string, object>();
 
         startable.SetupGet(s => s.InitialValues).Returns(initialValues);
-        startable.SetupGet(s => s.Target).Returns(order.Object);
+        startable.SetupGet(s => s.Target).Returns(target.Object);
+        startable.SetupGet(s => s.Command).Returns("Move");
 
         target.Setup(
             t => t.SetProperty(
@@ -105,7 +119,7 @@ public class StartMoveCommandTest
 
         var smc = new StartMoveCommand(startable.Object);
 
-        Assert.Throws<Exception>(() => startMoveCommand.Execute()); 
+        Assert.Throws<Exception>(() => smc.Execute()); 
     }
 
     /*[Fact]

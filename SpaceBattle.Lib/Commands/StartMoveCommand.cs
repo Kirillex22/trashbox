@@ -1,3 +1,4 @@
+using Hwdtech;
 using Hwdtech.Ioc;
 
 namespace SpaceBattle.Lib;
@@ -20,10 +21,11 @@ public class StartMoveCommand : ICommand
             value.Value
         ));
 
-        var cmdName = _startable.InitialValues.GetValueOrDefault("command");
+        string cmdName = _startable.Command;
+       
         var cmd = IoC.Resolve<ICommand>($"Game.Command.{cmdName}", _startable.Target);
 
-        IoC.Resolve<ICommand>("Game.IUObject.SetProperty", _startable.Target, "command", cmd);
+        IoC.Resolve<object>("Game.IUObject.SetProperty", _startable.Target, "command", cmd);
         IoC.Resolve<IQueue>("Game.Queue").Push(cmd);
     }  
 }
