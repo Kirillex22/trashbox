@@ -61,7 +61,7 @@ public class StartMoveCommandTest
         
         var startable = new Mock<IMoveStartable>();
         var target = new Mock<IUObject>();
-        var initialValues = new Dictionary<string, object> { {"position", new object()}};
+        var initialValues = new Dictionary<string, object> {{"position", new object()}};
 
         var settedValues = new Dictionary<string, object>();
 
@@ -87,20 +87,6 @@ public class StartMoveCommandTest
     [Fact]
     public void InitialValuesSetException()
     {
-        var queue = new Mock<IQueue>();
-        var realQueue = new Queue<SpaceBattle.Lib.ICommand>();
-
-        queue.Setup(q => q.Push(It.IsAny<SpaceBattle.Lib.ICommand>())).Callback(realQueue.Enqueue);
-
-        IoC.Resolve<Hwdtech.ICommand>(
-            "IoC.Register",
-            "Game.Queue",
-            (object[] args) =>
-            {
-                return queue.Object;
-            }
-        ).Execute();
-
         var startable = new Mock<IMoveStartable>();
         var target = new Mock<IUObject>();
         var initialValues = new Dictionary<string, object> {{"velocity", new object()}};
@@ -122,28 +108,52 @@ public class StartMoveCommandTest
         Assert.Throws<Exception>(() => smc.Execute()); 
     }
 
-    /*[Fact]
-    public void StartMoveCommand_CantReadPropertiesOfOrder_FromStartable()
+    [Fact]
+    public void InitialValuesGetException()
     {
         var startable = new Mock<IMoveStartable>();
-        startable.SetupGet(s => s.PropertiesOfOrder).Throws(new NotImplementedException());
-        var startMoveCommand = new StartMoveCommand(startable.Object);
+        startable.SetupGet(s => s.InitialValues).Throws(new Exception());
 
-        Assert.Throws<NotImplementedException>(startMoveCommand.Execute);
+        var smc = new StartMoveCommand(startable.Object);
+
+        Assert.Throws<Exception>(() => smc.Execute());
     }
 
     [Fact]
-    public void StartMoveCommand_CantReadOrder_FromStartable()
+    public void TargetGetException()
     {
         var startable = new Mock<IMoveStartable>();
-        startable.SetupGet(s => s.Order).Throws(new NotImplementedException());
-        var properties = new Dictionary<string, object> {
-            { "position", new Vector( new int[] { 2, 1 }) },
-        };
+        startable.SetupGet(s => s.Target).Throws(new Exception());
+        var initialValues = new Dictionary<string, object> {{"position", new object()}};
 
-        startable.SetupGet(s => s.PropertiesOfOrder).Returns(properties);
-        var startMoveCommand = new StartMoveCommand(startable.Object);
+        startable.SetupGet(s => s.InitialValues).Returns(initialValues);
+        var smc = new StartMoveCommand(startable.Object);
 
-        Assert.Throws<NotImplementedException>(startMoveCommand.Execute);
-    }*/
+        Assert.Throws<Exception>(() => smc.Execute());
+    }
+
+    [Fact]
+    public void OperationNameGetException()
+    {
+        var startable = new Mock<IMoveStartable>();
+        var target = new Mock<IUObject>();
+        var initialValues = new Dictionary<string, object> {{"velocity", new object()}};
+        var settedValues = new Dictionary<string, object>();
+
+        startable.SetupGet(s => s.InitialValues).Returns(initialValues);
+        startable.SetupGet(s => s.Target).Returns(target.Object);
+        startable.SetupGet(s => s.Command).Throws(new Exception());
+
+        target.Setup(
+            t => t.SetProperty(
+                It.IsAny<string>(),
+                It.IsAny<object>()
+                )
+        ).Callback(settedValues.Add);
+
+        var smc = new StartMoveCommand(startable.Object);
+
+        Assert.Throws<Exception>(() => smc.Execute());
+    }
+
 }
