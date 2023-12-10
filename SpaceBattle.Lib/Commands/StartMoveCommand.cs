@@ -20,7 +20,8 @@ public class StartMoveCommand : ICommand
             value.Value
         ));
 
-        var cmd = IoC.Resolve<ICommand>("Game.Command.LongMove", _startable.Target);
+        var cmdName = _startable.InitialValues.GetValueOrDefault("command");
+        var cmd = IoC.Resolve<ICommand>($"Game.Command.{cmdName}", _startable.Target);
 
         IoC.Resolve<ICommand>("Game.IUObject.SetProperty", _startable.Target, "command", cmd);
         IoC.Resolve<IQueue>("Game.Queue").Push(cmd);
