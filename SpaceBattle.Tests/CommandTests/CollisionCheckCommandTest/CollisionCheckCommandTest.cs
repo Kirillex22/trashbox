@@ -17,73 +17,52 @@ public class CollisionCheckCommandTest
              IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))
         ).Execute();
 
-        var testTree = new Hashtable() {1, new Hashtable}
+        var concreteTree = new Hashtable(){
+                {0, new Hashtable(){
+                    {0, new Hashtable(){
+                        {0, new Hashtable(){
+                            {1, new Hashtable()}
+                    }
+                }
+                }
+            }
+            }
+        }
+        };
 
         IoC.Resolve<Hwdtech.ICommand>(
             "IoC.Register",
             "Game.Struct.CollisionTree",
-            () =>
-            {
-                var target = (IUObject)args[0];
-                var key = (string)args[1];
-                var value = args[2];
-
-                target.SetProperty(key, value);
-                return new object();
-            }
+            (object[] args) => concreteTree
         ).Execute();
-
-        IoC.Resolve<Hwdtech.ICommand>(
-            "IoC.Register",
-            "Game.Command.Move",
-            (object[] args) =>
-            {
-                return new MoveCommand(new Mock<IMovable>().Object);
-            }
-        ).Execute();
-
     }
 
     [Fact]
-    public void SuccefulExecuting()
+    public void SuccefulExecutingWithCollision()
     { 
-        var queue = new Mock<IQueue>();
-        var realQueue = new Queue<SpaceBattle.Lib.ICommand>();
-
-        queue.Setup(q => q.Push(It.IsAny<SpaceBattle.Lib.ICommand>())).Callback(realQueue.Enqueue);
+        IoC.Resolve<Hwdtech.ICommand>(
+            "IoC.Register",
+            "Game.UObject.GetProperty",
+            (object[] args) => new int[] {1, 1}
+        ).Execute();
+        
+        var collisionCommand = new Mock<SpaceBattle.Lib.ICommand>();
+        collisionCommand.Setup(c => c.Execute()).Verifiable("collisionCommand wasn't called");
 
         IoC.Resolve<Hwdtech.ICommand>(
             "IoC.Register",
-            "Game.Queue",
-            (object[] args) =>
-            {
-                return queue.Object;
-            }
+            "Game.Event.Collision",
+            (object[] args) => collisionCommand.Object
         ).Execute();
-        
-        var startable = new Mock<IMoveStartable>();
-        var target = new Mock<IUObject>();
-        var initialValues = new Dictionary<string, object> {{"position", new object()}};
 
-        var settedValues = new Dictionary<string, object>();
+        var obj1 = new Mock<IUObject>().Object;
+        var obj2 = new Mock<IUObject>().Object;
 
-        startable.SetupGet(s => s.InitialValues).Returns(initialValues);
-        startable.SetupGet(s => s.Target).Returns(target.Object);
-        startable.SetupGet(s => s.Command).Returns("Move");
+        var chm = new CheckCollisionCommand(obj1, obj2);
 
-        target.Setup(
-            t => t.SetProperty(
-                It.IsAny<string>(),
-                It.IsAny<object>()
-                )
-        ).Callback<string, object>(settedValues.Add);
+        chm.Execute();
 
-        var smc = new StartMoveCommand(startable.Object);  
-
-        smc.Execute();
-
-        Assert.True(settedValues.ContainsKey("position") && settedValues.ContainsKey("command"));
-        Assert.NotEmpty(realQueue);
+        collisionCommand.VerifyAll();       
     }
 
 }

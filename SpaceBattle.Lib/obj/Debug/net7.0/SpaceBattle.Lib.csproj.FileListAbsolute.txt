@@ -1,0 +1,12 @@
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/SpaceBattle.Lib.csproj.AssemblyReference.cache
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/SpaceBattle.Lib.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/SpaceBattle.Lib.AssemblyInfoInputs.cache
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/SpaceBattle.Lib.AssemblyInfo.cs
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/SpaceBattle.Lib.csproj.CoreCompileInputs.cache
+/workspaces/trashbox/SpaceBattle.Lib/bin/Debug/net7.0/SpaceBattle.Lib.deps.json
+/workspaces/trashbox/SpaceBattle.Lib/bin/Debug/net7.0/SpaceBattle.Lib.dll
+/workspaces/trashbox/SpaceBattle.Lib/bin/Debug/net7.0/SpaceBattle.Lib.pdb
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/SpaceBattle.Lib.dll
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/refint/SpaceBattle.Lib.dll
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/SpaceBattle.Lib.pdb
+/workspaces/trashbox/SpaceBattle.Lib/obj/Debug/net7.0/ref/SpaceBattle.Lib.dll
