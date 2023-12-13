@@ -8,38 +8,36 @@ namespace SpaceBattle.Lib;
 class CheckCollisionCommand
 {
     private int[] _state;
-    private Searcher _searcher;
+    private IUObject _obj1;
+    private IUObject _obj2;
 
-    public CheckCollisionCommand(IMovable obj1, IMovable obj2)
+    public CheckCollisionCommand(IUObject obj1, IUObject obj2)
     {
-        var rx = obj1.Position.Coords[0] - obj2.Position.Coords[0];
-        var ry = obj1.Position.Coords[1] - obj2.Position.Coords[1];
-        var rdx = obj1.Velocity.Coords[0] - obj2.Velocity.Coords[0];
-        var rdy = obj1.Velocity.Coords[1] - obj2.Velocity.Coords[1];
+        _obj1 = obj1;
+        _obj2 = obj2;
 
-        _state = new int[] {rx, ry, rdx, rdy};     
+        var properties = new int[][]() {
+            IoC.Resolve<int[]>("Game.UObject.GetProperty", obj1, "Position"), 
+            IoC.Resolve<int[]>("Game.UObject.GetProperty", obj1, "Velocity");
+            IoC.Resolve<int[]>("Game.UObject.GetProperty", obj2, "Position");
+            IoC.Resolve<int[]>("Game.UObject.GetProperty", obj2, "Velocity"); 
+        };
 
-        _searcher = (int param, ref Hashtable currLvl) => 
-        {         
-            if(!currLvl.ContainsKey(param))
-            {
-                throw new Exception("collision interception");
-            }
+        _state = new int[] {
+            properties[2][0] - properties[0][0],
+            properties[2][1] - properties[0][1],
+            properties[3][0] - properties[1][0],
+            properties[3][1] - properties[1][1]
+        };
 
-            else
-            {
-                currLvl = currLvl[param];
-            }
-        }
     }
 
     public void Execute()
     {
-        var collisionTree = IoC.Resolve<ITree>("Game.Struct.CollisionTree");
+        var collTree = IoC.Resolve<IDictionary<int, object>>("Game.Struct.CollisionTree");
 
-        _state.Select(value => _searcher(value, collisionTree));
+        _state.ToList().ForEach(parameter => collTree = collTree[parameter]);
+
+        IoC.Resolve<ICommand>("Game.Event.Collision", _objFirst, _objSecond).Execute();   
     }
-
-    delegate void Searcher(int p, Hashtable l);
-
 }
